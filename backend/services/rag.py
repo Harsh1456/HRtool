@@ -36,12 +36,11 @@ async def embed_batch(texts: List[str]) -> List[List[float]]:
 async def retrieve_chunks(
     query: str,
     db: AsyncSession,
-    user_id: str,
     top_k: int = 6,
 ) -> List[Dict[str, Any]]:
     """
     Embed the query and return top-k most similar chunks
-    from documents belonging to this user.
+    from the shared organisation-wide document pool.
     """
     query_embedding = await embed_text(query)
     embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
@@ -57,15 +56,13 @@ async def retrieve_chunks(
             1 - (dc.embedding <=> CAST(:embedding AS vector)) AS similarity
         FROM document_chunks dc
         JOIN documents d ON dc.document_id = d.id
-        WHERE d.user_id = :user_id
-          AND dc.embedding IS NOT NULL
+        WHERE dc.embedding IS NOT NULL
         ORDER BY dc.embedding <=> CAST(:embedding AS vector)
         LIMIT :top_k
     """)
 
     result = await db.execute(sql, {
         "embedding": embedding_str,
-        "user_id": user_id,
         "top_k": top_k,
     })
     rows = result.fetchall()
