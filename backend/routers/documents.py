@@ -151,11 +151,11 @@ async def list_documents(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(Document)
-        .where(Document.user_id == current_user.id)
+        select(Document, User.full_name.label("uploader_name"))
+        .join(User, Document.user_id == User.id)
         .order_by(Document.uploaded_at.desc())
     )
-    docs = result.scalars().all()
+    rows = result.all()
     return [
         {
             "id": d.id,
@@ -163,8 +163,9 @@ async def list_documents(
             "file_size": d.file_size,
             "page_count": d.page_count,
             "uploaded_at": d.uploaded_at.isoformat() if d.uploaded_at else None,
+            "uploaded_by": uploader_name,
         }
-        for d in docs
+        for d, uploader_name in rows
     ]
 
 
@@ -179,7 +180,7 @@ async def rename_document(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(Document).where(Document.id == doc_id, Document.user_id == current_user.id)
+        select(Document).where(Document.id == doc_id)
     )
     doc = result.scalar_one_or_none()
     if not doc:
@@ -198,7 +199,7 @@ async def view_document(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(Document).where(Document.id == doc_id, Document.user_id == current_user.id)
+        select(Document).where(Document.id == doc_id)
     )
     doc = result.scalar_one_or_none()
     if not doc:
@@ -232,7 +233,7 @@ async def delete_document(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(Document).where(Document.id == doc_id, Document.user_id == current_user.id)
+        select(Document).where(Document.id == doc_id)
     )
     doc = result.scalar_one_or_none()
     if not doc:
