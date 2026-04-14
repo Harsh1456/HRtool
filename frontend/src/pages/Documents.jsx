@@ -91,7 +91,7 @@ export default function Documents() {
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
-                    <p className="text-sm text-gray-500 mt-1">Manage uploaded HR policy documents available for RAG search.</p>
+                    <p className="text-sm text-gray-500 mt-1">Shared HR knowledge base — documents uploaded here are available to every user's chatbot.</p>
                 </div>
                 <div>
                     <input
@@ -126,10 +126,11 @@ export default function Documents() {
                     <table className="w-full table-fixed">
                         <thead className="border-b border-gray-100">
                             <tr>
-                                <th className="table-header w-[60%]">Document</th>
-                                <th className="table-header w-[120px]">Size</th>
-                                <th className="table-header w-[120px]">Pages</th>
-                                <th className="table-header w-[160px]">Uploaded</th>
+                                <th className="table-header w-[40%]">Document</th>
+                                <th className="table-header w-[140px]">Uploaded by</th>
+                                <th className="table-header w-[100px]">Size</th>
+                                <th className="table-header w-[80px]">Pages</th>
+                                <th className="table-header w-[130px]">Uploaded</th>
                                 <th className="table-header w-[90px]"></th>
                             </tr>
                         </thead>
@@ -164,6 +165,15 @@ export default function Documents() {
                                                 </span>
                                             )}
                                         </div>
+                                    </td>
+
+                                    <td className="table-cell text-gray-500 text-xs">
+                                        <span className="inline-flex items-center gap-1.5">
+                                            <span className="w-5 h-5 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                                                {(doc.uploaded_by || '?')[0].toUpperCase()}
+                                            </span>
+                                            <span className="truncate max-w-[100px]" title={doc.uploaded_by}>{doc.uploaded_by || '—'}</span>
+                                        </span>
                                     </td>
 
                                     <td className="table-cell text-gray-500 text-xs">
