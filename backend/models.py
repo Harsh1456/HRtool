@@ -22,13 +22,14 @@ class User(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=gen_uuid)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
-    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
+    hashed_password: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(String(50), default="hr_user")  # hr_admin | hr_user
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    microsoft_id: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    documents: Mapped[List["Document"]] = relationship("Document", back_populates="user", cascade="all, delete-orphan")
+    documents: Mapped[List["Document"]] = relationship("Document", back_populates="user", cascade="save-update, merge")
     chat_sessions: Mapped[List["ChatSession"]] = relationship("ChatSession", back_populates="user", cascade="all, delete-orphan")
     jd_records: Mapped[List["JDRecord"]] = relationship("JDRecord", back_populates="user", cascade="all, delete-orphan")
     offer_records: Mapped[List["OfferLetterRecord"]] = relationship("OfferLetterRecord", back_populates="user", cascade="all, delete-orphan")
