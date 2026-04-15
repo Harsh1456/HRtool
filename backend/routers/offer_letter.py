@@ -1,5 +1,6 @@
 import io
 import re
+from datetime import date
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
@@ -53,8 +54,10 @@ async def generate_offer_letter(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    today_str = date.today().strftime("%B %d, %Y")
     prompt = f"""Write a professional, warm, and legally sound employment offer letter. Output ONLY clean plain text — do NOT use any markdown symbols such as #, ##, ###, *, **, -, or any other special formatting characters. Do not use asterisks, hashes, dashes as bullet points, or any markdown syntax whatsoever.
 
+Today's Date: {today_str}
 Candidate Name: {body.candidate_name}
 Position: {body.position}
 Department: {body.department}
@@ -77,7 +80,7 @@ Write the letter with:
 6. A next steps paragraph with signing deadline and required documents
 7. A warm closing with signature block
 
-Use placeholders like [Company Name] and [HR Manager Name] where appropriate. Write in a professional but welcoming tone. Do NOT use any markdown formatting characters."""
+Do NOT use placeholders like [Company Name] or [HR Manager Name]. Always use "Superior Paving Corp." as the company name. Fill in all details completely based on the exact information provided. If any detail is missing, omit it naturally or use a cohesive default, ensuring no bracketed placeholders remain to be filled out. Write in a professional but welcoming tone. Do NOT use any markdown formatting characters."""
 
     response = await openai_client.chat.completions.create(
         model=settings.openai_chat_model,
@@ -90,6 +93,7 @@ Use placeholders like [Company Name] and [HR Manager Name] where appropriate. Wr
     )
 
     content = response.choices[0].message.content
+    content = re.sub(r'(?i)\[company name\]', 'Superior Paving Corp.', content)
 
     record = OfferLetterRecord(
         user_id=current_user.id,
@@ -193,14 +197,6 @@ async def export_offer_docx(body: OfferExportRequest):
     except Exception as e:
         print(f"Could not load logo: {e}")
 
-    header_para = doc.add_paragraph()
-    header_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = header_para.add_run("[Company Name]")
-    run.bold = True
-    run.font.size = Pt(16)
-    run.font.color.rgb = RGBColor(0x2E, 0x7D, 0x32)
-
-    doc.add_paragraph()
     title_para = doc.add_paragraph()
     r = title_para.add_run("OFFER OF EMPLOYMENT")
     r.bold = True
