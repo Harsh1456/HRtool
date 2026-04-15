@@ -89,7 +89,7 @@ List 3-4 items as numbered items on consecutive lines with no blank lines betwee
 WHAT WE OFFER
 List 4-5 benefits as numbered items on consecutive lines with no blank lines between them.
 
-Write in a professional, engaging tone. Be specific and concrete. Do NOT use any markdown formatting characters."""
+Write in a professional, engaging tone. Be specific and concrete. Do NOT use placeholders like [Company Name]. Always use "Superior Paving Corp." as the company name. If any detail is missing, make up a reasonable professional default or omit it naturally, ensuring the document is completely finished with no bracketed placeholders left for the user to edit. Do NOT use any markdown formatting characters."""
 
     response = await openai_client.chat.completions.create(
         model=settings.openai_chat_model,
@@ -102,6 +102,7 @@ Write in a professional, engaging tone. Be specific and concrete. Do NOT use any
     )
 
     content = response.choices[0].message.content
+    content = re.sub(r'(?i)\[company name\]', 'Superior Paving Corp.', content)
 
     # Save record
     record = JDRecord(
