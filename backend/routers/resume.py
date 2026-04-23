@@ -1,3 +1,4 @@
+import asyncio
 import json
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
@@ -150,6 +151,75 @@ Respond ONLY with a valid JSON array, no markdown, no explanation:
         except Exception:
             continue
     results = cleaned_results
+
+    # ── AI-Generated Content Detection ────────────────────────────────────────
+    # Run a second GPT call per resume to detect if the content is AI-written.
+    async def detect_ai_content(resume_text: str, filename: str) -> dict:
+        detection_prompt = f"""You are an AI writing detection specialist. Analyze this resume text and determine if it was likely written by an AI tool (such as ChatGPT, Claude, etc.).
+
+Look for these signals:
+- Overly uniform sentence length and structure
+- Generic, buzzword-heavy phrasing with no personal specifics
+- Suspiciously perfect grammar and flow
+- Templated bullet point patterns (every bullet starts the same way)
+- Lack of personal stories, specific numbers, or unique details
+- Marketing-style language rather than genuine experience descriptions
+
+Resume text:
+{resume_text[:3000]}
+
+Respond ONLY with a valid JSON object — no markdown, no explanation:
+{{
+  "score": 72,
+  "label": "Likely AI-Generated",
+  "signals": ["Overly uniform sentence structure", "Generic buzzword phrasing", "No specific personal details"]
+}}
+
+Rules for the label field:
+- Use "Likely AI-Generated" if score >= 60
+- Use "Possibly AI-Assisted" if score between 30 and 59
+- Use "Likely Human-Written" if score < 30"""
+
+        try:
+            det_response = await openai_client.chat.completions.create(
+                model=settings.openai_chat_model,
+                messages=[
+                    {"role": "system", "content": "You are an AI content detection tool. Always respond with valid JSON only."},
+                    {"role": "user", "content": detection_prompt},
+                ],
+                temperature=0.1,
+                max_tokens=300,
+                response_format={"type": "json_object"},
+            )
+            raw_det = det_response.choices[0].message.content or "{}"
+            parsed_det = json.loads(raw_det)
+            score = int(parsed_det.get("score", 50))
+            label = parsed_det.get("label", "Possibly AI-Assisted")
+            signals = list(parsed_det.get("signals", []))
+            # Enforce consistent label
+            if score >= 60:
+                label = "Likely AI-Generated"
+            elif score >= 30:
+                label = "Possibly AI-Assisted"
+            else:
+                label = "Likely Human-Written"
+            return {"score": score, "label": label, "signals": signals}
+        except Exception:
+            return {"score": 50, "label": "Possibly AI-Assisted", "signals": ["Detection unavailable"]}
+
+    # Build a map from filename → resume text for detection
+    resume_text_map = {r["filename"]: r["text"] for r in resumes}
+
+    # Run detection for each ranked resume (in parallel)
+    detection_tasks = [
+        detect_ai_content(resume_text_map.get(r["filename"], ""), r["filename"])
+        for r in results
+    ]
+    detection_results = await asyncio.gather(*detection_tasks)
+
+    # Merge detection into results
+    for i, r in enumerate(results):
+        r["ai_detection"] = detection_results[i]
 
     # Save job
     job = ResumeScanJob(
