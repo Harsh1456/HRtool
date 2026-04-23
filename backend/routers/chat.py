@@ -70,24 +70,61 @@ async def ask(
         top_k=6,
     )
 
-    # Generate answer
-    answer = await generate_rag_answer(question=body.question, chunks=chunks)
+    # Generate answer (returns {"answer": str, "source": "docs"|"general"|"both"})
+    rag_result = await generate_rag_answer(question=body.question, chunks=chunks)
+    answer = rag_result["answer"]
+    answer_source = rag_result["source"]
 
     elapsed_ms = int((time.time() - start_time) * 1000)
 
-    # Build sources list
-    sources = []
+    # Build sources list — only include what was actually used to answer
+    from services.rag import SIMILARITY_THRESHOLD
+
+    doc_sources = []
     seen = set()
     for chunk in chunks:
+        # Only include chunks that were above the similarity threshold (i.e. actually used)
+        if chunk.get("similarity", 0) < SIMILARITY_THRESHOLD:
+            continue
         key = (chunk["filename"], chunk["page_number"])
         if key not in seen:
             seen.add(key)
-            sources.append({
+            doc_sources.append({
                 "filename": chunk["filename"],
                 "page_number": chunk["page_number"],
                 "document_id": chunk["document_id"],
                 "similarity": round(chunk["similarity"], 3),
+                "type": "document",
             })
+
+    # Compose final sources list based on which tier(s) were used
+    if answer_source == "docs":
+        # Only uploaded documents — show them, no general knowledge entry
+        sources = doc_sources
+
+    elif answer_source == "general":
+        # Answered entirely from general AI knowledge — do NOT list uploaded documents
+        sources = [
+            {
+                "filename": "General AI Knowledge",
+                "page_number": None,
+                "document_id": None,
+                "similarity": None,
+                "type": "general",
+            }
+        ]
+
+    else:  # "both"
+        # Uploaded documents + general knowledge — show both
+        sources = doc_sources + [
+            {
+                "filename": "General AI Knowledge",
+                "page_number": None,
+                "document_id": None,
+                "similarity": None,
+                "type": "general",
+            }
+        ]
 
     # Save assistant message
     assistant_msg = ChatMessage(
@@ -105,6 +142,7 @@ async def ask(
         "question": body.question,
         "answer": answer,
         "sources": sources,
+        "source": answer_source,
         "response_time_ms": elapsed_ms,
     }
 
@@ -166,12 +204,27 @@ async def get_messages(
         .order_by(ChatMessage.created_at)
     )
     messages = result.scalars().all()
+    
+    def derive_source(sources_list):
+        if not sources_list or not isinstance(sources_list, list):
+            return None
+        has_general = any(isinstance(s, dict) and (s.get("type") == "general" or s.get("filename") == "General AI Knowledge") for s in sources_list)
+        has_docs = any(isinstance(s, dict) and (s.get("type") == "document" or s.get("document_id") is not None) for s in sources_list)
+        if has_general and has_docs:
+            return "both"
+        elif has_general:
+            return "general"
+        elif has_docs:
+            return "docs"
+        return None
+
     return [
         {
             "id": m.id,
             "role": m.role,
             "content": m.content,
             "sources": m.sources,
+            "source": derive_source(m.sources),
             "created_at": m.created_at.isoformat() if m.created_at else None,
         }
         for m in messages
