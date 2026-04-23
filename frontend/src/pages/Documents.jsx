@@ -88,20 +88,23 @@ export default function Documents() {
 
     return (
         <div className="w-full relative">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
-                    <p className="text-sm text-gray-500 mt-1">Shared HR knowledge base — documents uploaded here are available to every user's chatbot.</p>
+                    <p className="text-sm text-gray-500 mt-1">Shared HR knowledge base — searchable by every user's chatbot.</p>
                 </div>
-                <div>
+                <div className="w-full sm:w-auto">
+                    <label htmlFor="doc_upload" className="sr-only">Upload Document</label>
                     <input
+                        id="doc_upload"
+                        name="doc_upload"
                         ref={fileRef}
                         type="file"
                         accept=".pdf,.docx,.doc"
                         className="hidden"
                         onChange={(e) => handleUpload(e.target.files[0])}
                     />
-                    <button onClick={() => fileRef.current?.click()} disabled={uploading} className="btn-primary">
+                    <button onClick={() => fileRef.current?.click()} disabled={uploading} className="btn-primary w-full sm:w-auto justify-center shadow-md">
                         {uploading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
                         Upload Document
                     </button>
@@ -114,16 +117,17 @@ export default function Documents() {
                         <Loader2 size={24} className="animate-spin text-primary-600" />
                     </div>
                 ) : docs.length === 0 ? (
-                    <div className="py-12 text-center">
-                        <FileText size={40} className="mx-auto text-gray-200 mb-3" />
-                        <p className="text-sm text-gray-500">No documents uploaded yet.</p>
-                        <p className="text-xs text-gray-400 mt-1">Upload PDF or DOCX files to start using Ask HR Docs.</p>
-                        <button onClick={() => fileRef.current?.click()} className="btn-primary mt-4 mx-auto">
-                            <Upload size={15} /> Upload your first document
+                    <div className="py-12 px-4 text-center">
+                        <FileText size={48} className="mx-auto text-gray-200 mb-4" />
+                        <p className="text-sm font-medium text-gray-800">No documents uploaded yet.</p>
+                        <p className="text-xs text-gray-400 mt-1">Upload PDF/DOCX files for the AI assistant.</p>
+                        <button onClick={() => fileRef.current?.click()} className="btn-primary mt-6 mx-auto w-full max-w-xs justify-center">
+                            <Upload size={15} /> Upload first document
                         </button>
                     </div>
                 ) : (
-                    <table className="w-full table-fixed">
+                    <div className="overflow-x-auto -mx-4 sm:mx-0">
+                        <table className="w-full min-w-[800px] table-fixed">
                         <thead className="border-b border-gray-100">
                             <tr>
                                 <th className="table-header w-[40%]">Document</th>
@@ -146,7 +150,10 @@ export default function Documents() {
 
                                             {editingId === doc.id ? (
                                                 <div className="flex items-center gap-2 w-full">
+                                                    <label htmlFor="edit_filename" className="sr-only">Rename Document</label>
                                                     <input
+                                                        id="edit_filename"
+                                                        name="edit_filename"
                                                         autoFocus
                                                         value={editName}
                                                         onChange={(e) => setEditName(e.target.value)}
@@ -217,6 +224,7 @@ export default function Documents() {
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 )}
             </div>
         </div>

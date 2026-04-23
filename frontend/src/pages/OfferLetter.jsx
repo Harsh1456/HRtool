@@ -96,7 +96,6 @@ export default function OfferLetter() {
     const [result, setResult] = useState(null)
     const [loading, setLoading] = useState(false)
     const [exporting, setExporting] = useState(false)
-    const [isEditing, setIsEditing] = useState(false)
 
     // History
     const [history, setHistory] = useState([])
@@ -212,53 +211,53 @@ export default function OfferLetter() {
                     <p className="text-sm text-gray-500 mt-1">Generate professional offer letters for new hires.</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Form */}
                     <div className="card">
                         <form onSubmit={handleGenerate} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="label">Candidate Name *</label>
-                                    <input type="text" required className="input" placeholder="Alice Johnson" value={form.candidate_name} onChange={update('candidate_name')} />
+                                    <label htmlFor="candidate_name" className="label">Candidate Name *</label>
+                                    <input id="candidate_name" name="candidate_name" type="text" required className="input" placeholder="Alice Johnson" value={form.candidate_name} onChange={update('candidate_name')} />
                                 </div>
                                 <div>
-                                    <label className="label">Position *</label>
-                                    <input type="text" required className="input" placeholder="Software Engineer" value={form.position} onChange={update('position')} />
+                                    <label htmlFor="position" className="label">Position *</label>
+                                    <input id="position" name="position" type="text" required className="input" placeholder="Software Engineer" value={form.position} onChange={update('position')} />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="department" className="label">Department</label>
+                                    <input id="department" name="department" type="text" className="input" placeholder="Engineering" value={form.department} onChange={update('department')} />
+                                </div>
+                                <div>
+                                    <label htmlFor="start_date" className="label">Start Date</label>
+                                    <input id="start_date" name="start_date" type="date" className="input" value={form.start_date} onChange={update('start_date')} />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="salary" className="label">Compensation</label>
+                                    <input id="salary" name="salary" type="text" className="input" placeholder="$80,000/year" value={form.salary} onChange={update('salary')} />
+                                </div>
+                                <div>
+                                    <label htmlFor="manager_name" className="label">Reports To</label>
+                                    <input id="manager_name" name="manager_name" type="text" className="input" placeholder="Manager name" value={form.manager_name} onChange={update('manager_name')} />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="label">Department</label>
-                                    <input type="text" className="input" placeholder="Engineering" value={form.department} onChange={update('department')} />
-                                </div>
-                                <div>
-                                    <label className="label">Start Date</label>
-                                    <input type="date" className="input" value={form.start_date} onChange={update('start_date')} />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="label">Compensation</label>
-                                    <input type="text" className="input" placeholder="$80,000/year" value={form.salary} onChange={update('salary')} />
-                                </div>
-                                <div>
-                                    <label className="label">Reports To</label>
-                                    <input type="text" className="input" placeholder="Manager name" value={form.manager_name} onChange={update('manager_name')} />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="label">Location</label>
-                                    <select className="input" value={form.location} onChange={update('location')}>
+                                    <label htmlFor="location" className="label">Location</label>
+                                    <select id="location" name="location" className="input" value={form.location} onChange={update('location')}>
                                         {LOCATIONS.map((l) => <option key={l}>{l}</option>)}
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="label">Employment Type</label>
-                                    <select className="input" value={form.employment_type} onChange={update('employment_type')}>
+                                    <label htmlFor="employment_type" className="label">Employment Type</label>
+                                    <select id="employment_type" name="employment_type" className="input" value={form.employment_type} onChange={update('employment_type')}>
                                         <option>Full-Time</option>
                                         <option>Part-Time</option>
                                         <option>Contract</option>
@@ -267,13 +266,13 @@ export default function OfferLetter() {
                             </div>
 
                             <div>
-                                <label className="label">Benefits</label>
-                                <input type="text" className="input" placeholder="List key benefits" value={form.benefits} onChange={update('benefits')} />
+                                <label htmlFor="benefits" className="label">Benefits</label>
+                                <input id="benefits" name="benefits" type="text" className="input" placeholder="List key benefits" value={form.benefits} onChange={update('benefits')} />
                             </div>
 
                             <div>
-                                <label className="label">Additional Notes</label>
-                                <textarea className="input min-h-[70px] resize-y" placeholder="Any special conditions or notes…" value={form.additional_notes} onChange={update('additional_notes')} />
+                                <label htmlFor="additional_notes" className="label">Additional Notes</label>
+                                <textarea id="additional_notes" name="additional_notes" className="input min-h-[70px] resize-y" placeholder="Any special conditions or notes…" value={form.additional_notes} onChange={update('additional_notes')} />
                             </div>
 
                             <button type="submit" disabled={loading} className="btn-primary w-full justify-center">
@@ -284,62 +283,18 @@ export default function OfferLetter() {
                     </div>
 
                     {/* Preview */}
-                    <div className="card flex flex-col min-h-[650px] bg-gray-50/50">
+                    <div className="card flex flex-col min-h-[500px]">
                         {result ? (
                             <>
-                                <div className="flex justify-between items-center mb-4">
-                                    <h3 className="font-semibold text-gray-900">
-                                        Preview — {result.candidate_name}
-                                    </h3>
-                                    <button 
-                                        onClick={() => setIsEditing(!isEditing)} 
-                                        className={`text-xs px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors ${
-                                            isEditing 
-                                            ? 'bg-primary-100 text-primary-700 font-medium' 
-                                            : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 shadow-sm'
-                                        }`}
-                                    >
-                                        <Edit2 size={12} />
-                                        {isEditing ? 'Editing Body Text' : 'Edit Text'}
-                                    </button>
+                                <h3 className="font-semibold text-gray-900 mb-3">
+                                    Offer Letter — {result.candidate_name}
+                                </h3>
+                                <div className="flex-1 overflow-y-auto border border-gray-100 rounded-lg p-5 bg-white shadow-sm min-h-0">
+                                    <PlainTextRenderer content={result.content} />
                                 </div>
-
-                                <div className="flex-1 overflow-y-auto mb-4 border border-gray-200 rounded-lg p-8 sm:p-12 bg-white shadow-sm flex flex-col relative text-[13px] font-['Calibri',_sans-serif]">
-                                    {/* Document Header matching docx */}
-                                    <div className="flex flex-col items-center mb-8 select-none">
-                                        <img src="/logo.png" alt="Company Logo" className="w-[3in] max-w-full mb-6" />
-                                        <h1 className="text-[14pt] font-bold text-center" style={{ fontFamily: 'Arial, sans-serif' }}>
-                                            OFFER OF EMPLOYMENT
-                                        </h1>
-                                    </div>
-
-                                    {isEditing ? (
-                                        <textarea
-                                            autoFocus
-                                            className="w-full flex-1 resize-none outline-none bg-transparent"
-                                            style={{ 
-                                                fontFamily: 'Calibri, sans-serif', 
-                                                fontSize: '13.5px',
-                                                lineHeight: '1.7',
-                                                minHeight: '400px'
-                                            }}
-                                            value={result.content}
-                                            onChange={(e) => setResult({ ...result, content: e.target.value })}
-                                        />
-                                    ) : (
-                                        <div 
-                                            className="flex-1 cursor-text hover:bg-gray-50/50 transition-colors rounded -mx-2 px-2 pb-4" 
-                                            onClick={() => setIsEditing(true)}
-                                            title="Click to edit text"
-                                        >
-                                            <PlainTextRenderer content={result.content} />
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="flex gap-2">
+                                <div className="flex flex-col sm:flex-row gap-2 mt-4">
                                     <button onClick={() => { navigator.clipboard.writeText(result.content); toast.success('Copied!') }} className="btn-secondary flex-1 justify-center">
-                                        <Copy size={14} /> Copy Text
+                                        <Copy size={14} /> Copy
                                     </button>
                                     <button onClick={handleExport} disabled={exporting} className="btn-primary flex-1 justify-center">
                                         {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
@@ -348,7 +303,7 @@ export default function OfferLetter() {
                                 </div>
                             </>
                         ) : (
-                            <div className="flex-1 flex flex-col items-center justify-center text-gray-400 text-sm h-full">
+                            <div className="flex-1 flex flex-col items-center justify-center text-gray-400 text-sm">
                                 <Mail size={40} className="opacity-20 mb-3" />
                                 <p>Fill in candidate details and click Generate</p>
                             </div>
@@ -366,13 +321,13 @@ export default function OfferLetter() {
                     </div>
 
                     <div className="overflow-x-auto rounded-lg border border-gray-100">
-                        <table className="w-full table-fixed">
+                        <table className="w-full">
                             <thead className="border-b border-gray-100 bg-gray-50/50">
                                 <tr>
-                                    <th className="table-header w-[35%]">Candidate</th>
-                                    <th className="table-header w-[35%]">Position</th>
-                                    <th className="table-header w-[160px]">Date Generated</th>
-                                    <th className="table-header w-[100px]"></th>
+                                    <th className="table-header w-1/2 sm:w-[35%]">Candidate</th>
+                                    <th className="table-header hidden sm:table-cell sm:w-[35%]">Position</th>
+                                    <th className="table-header w-1/4 sm:w-[160px]">Date</th>
+                                    <th className="table-header w-[80px] sm:w-[100px]"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -385,36 +340,46 @@ export default function OfferLetter() {
                                         <tr key={h.id} className="hover:bg-gray-50 transition group cursor-pointer" onClick={() => loadHistoryItem(h)}>
                                             <td className="table-cell">
                                                 {editingId === h.id ? (
-                                                    <input
-                                                        autoFocus
-                                                        onClick={e => e.stopPropagation()}
-                                                        value={editForm.candidate_name}
-                                                        onChange={e => setEditForm(prev => ({ ...prev, candidate_name: e.target.value }))}
-                                                        className="text-sm border border-gray-300 rounded px-2 py-0.5 outline-none w-full"
-                                                        placeholder="Candidate"
-                                                    />
+                                                    <>
+                                                        <label htmlFor="edit_candidate_name" className="sr-only">Edit Candidate Name</label>
+                                                        <input
+                                                            id="edit_candidate_name"
+                                                            name="edit_candidate_name"
+                                                            autoFocus
+                                                            onClick={e => e.stopPropagation()}
+                                                            value={editForm.candidate_name}
+                                                            onChange={e => setEditForm(prev => ({ ...prev, candidate_name: e.target.value }))}
+                                                            className="text-sm border border-gray-300 rounded px-2 py-0.5 outline-none w-full"
+                                                            placeholder="Candidate"
+                                                        />
+                                                    </>
                                                 ) : (
                                                     <span className="text-sm font-medium text-gray-900 truncate block pr-2" title={h.candidate_name}>
                                                         {h.candidate_name}
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="table-cell">
+                                            <td className="table-cell hidden sm:table-cell">
                                                 {editingId === h.id ? (
-                                                    <input
-                                                        onClick={e => e.stopPropagation()}
-                                                        value={editForm.position}
-                                                        onChange={e => setEditForm(prev => ({ ...prev, position: e.target.value }))}
-                                                        className="text-sm border border-gray-300 rounded px-2 py-0.5 outline-none w-full"
-                                                        placeholder="Position"
-                                                    />
+                                                    <>
+                                                        <label htmlFor="edit_position" className="sr-only">Edit Position</label>
+                                                        <input
+                                                            id="edit_position"
+                                                            name="edit_position"
+                                                            onClick={e => e.stopPropagation()}
+                                                            value={editForm.position}
+                                                            onChange={e => setEditForm(prev => ({ ...prev, position: e.target.value }))}
+                                                            className="text-sm border border-gray-300 rounded px-2 py-0.5 outline-none w-full"
+                                                            placeholder="Position"
+                                                        />
+                                                    </>
                                                 ) : (
                                                     <span className="text-sm text-primary-600 truncate block pr-2" title={h.position}>
                                                         {h.position}
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="table-cell text-gray-500">
+                                            <td className="table-cell text-gray-500 whitespace-nowrap text-xs">
                                                 {new Date(h.created_at).toLocaleDateString()}
                                             </td>
                                             <td className="table-cell text-right">

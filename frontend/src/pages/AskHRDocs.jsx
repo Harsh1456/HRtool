@@ -5,15 +5,30 @@ import toast from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 import {
     Upload, Send, FileText, ChevronDown, ChevronUp, Bot, Loader2,
-    File, Plus, MessageSquare, Trash2, Edit2, MoreVertical, X, XCircle, FilePlus, Folder
+    File, Plus, MessageSquare, Trash2, Edit2, MoreVertical, X, XCircle, FilePlus, Folder, History, Search
 } from 'lucide-react'
+
+// ── Constants ────────────────────────────────────────────────────────────────
+
+const SUGGESTIONS_BANK = [
+    "What is our work from home policy?",
+    "How many vacation days do I get?",
+    "How do I request time off?",
+    "What are the core working hours?",
+    "When are performance reviews?",
+    "How does the promotion process work?",
+    "What health insurance plans are available?",
+    "How do I submit an expense report?",
+    "What is the company holiday schedule?",
+    "Are there any professional development budgets?"
+]
 
 // ── Components ───────────────────────────────────────────────────────────────
 
 function CitationItem({ source, onViewerOpen }) {
     return (
-        <button 
-            type="button" 
+        <button
+            type="button"
             onClick={() => onViewerOpen(source)}
             className="flex items-start gap-3 py-2 px-2 -mx-2 text-left hover:bg-gray-100 rounded transition w-full"
         >
@@ -60,9 +75,9 @@ function PdfViewerModal({ docSource, onClose }) {
                 </button>
             </div>
             <div className="flex-1 bg-white rounded-xl shadow-2xl overflow-hidden flex items-center justify-center">
-                {loading ? <Loader2 className="animate-spin text-primary-500 w-8 h-8"/> : 
-                pdfUrl ? <iframe src={pdfUrl} className="w-full h-full border-none" /> : 
-                <p className="text-gray-500">Failed to load preview</p>}
+                {loading ? <Loader2 className="animate-spin text-primary-500 w-8 h-8" /> :
+                    pdfUrl ? <iframe src={pdfUrl} className="w-full h-full border-none" /> :
+                        <p className="text-gray-500">Failed to load preview</p>}
             </div>
         </div>
     )
@@ -137,7 +152,10 @@ function ManagePdfsModal({ isOpen, onClose }) {
                         <p className="text-sm text-gray-500">
                             Shared knowledge base — documents uploaded here are searchable by every user's chatbot.
                         </p>
+                        <label htmlFor="modal_doc_upload" className="sr-only">Upload HR Document</label>
                         <input
+                            id="modal_doc_upload"
+                            name="modal_doc_upload"
                             ref={fileRef}
                             type="file"
                             accept=".pdf,.docx,.doc"
@@ -209,6 +227,21 @@ export default function AskHRDocs() {
     // Session list actions
     const [editingSessionId, setEditingSessionId] = useState(null)
     const [editTitle, setEditTitle] = useState('')
+    const [isHistoryVisible, setIsHistoryVisible] = useState(false)
+    const [showSuggestions, setShowSuggestions] = useState(false)
+    const [filteredSuggestions, setFilteredSuggestions] = useState([])
+
+    useEffect(() => {
+        if (!question.trim()) {
+            setFilteredSuggestions([])
+            setShowSuggestions(false)
+            return
+        }
+        const lowerQ = question.toLowerCase()
+        const matches = SUGGESTIONS_BANK.filter(s => s.toLowerCase().includes(lowerQ))
+        setFilteredSuggestions(matches.slice(0, 5))
+        setShowSuggestions(matches.length > 0)
+    }, [question])
 
     useEffect(() => {
         loadSessions()
@@ -315,9 +348,16 @@ export default function AskHRDocs() {
     }
 
     return (
-        <div className="flex h-full gap-4 -m-6 bg-[#f4f6f8]">
+        <div className="flex h-full -m-4 sm:-m-6 bg-[#f4f6f8] relative overflow-hidden">
             {/* ── Chat History Sidebar ────────────────────────────────────────────── */}
-            <div className="w-72 bg-gray-50 border-r border-gray-200 flex flex-col pt-6 flex-shrink-0">
+            <aside className={`
+                fixed inset-y-0 left-0 z-40 w-72 bg-gray-50 border-r border-gray-200 flex flex-col pt-6 flex-shrink-0 transition-all duration-300 ease-in-out
+                lg:static lg:h-auto lg:translate-x-0
+                ${isHistoryVisible
+                    ? 'translate-x-0 opacity-100'
+                    : '-translate-x-full lg:w-0 lg:opacity-0 lg:overflow-hidden lg:border-none'
+                }
+            `}>
                 <div className="px-4 mb-4">
                     <button
                         onClick={startNewChat}
@@ -340,7 +380,7 @@ export default function AskHRDocs() {
                     {sessions.map((session) => (
                         <div
                             key={session.id}
-                            onClick={() => setActiveSession(session)}
+                            onClick={() => { setActiveSession(session); setIsHistoryVisible(false); }}
                             className={`group relative flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer text-sm transition-colors ${activeSession?.id === session.id
                                 ? 'bg-primary-50 text-primary-800'
                                 : 'text-gray-700 hover:bg-gray-200/50'
@@ -349,15 +389,20 @@ export default function AskHRDocs() {
                             <div className="flex items-center gap-2 overflow-hidden flex-1 mr-4">
                                 <MessageSquare size={14} className="flex-shrink-0 opacity-50" />
                                 {editingSessionId === session.id ? (
-                                    <input
-                                        autoFocus
-                                        value={editTitle}
-                                        onChange={(e) => setEditTitle(e.target.value)}
-                                        onBlur={() => handleRenameSave(session.id)}
-                                        onKeyDown={(e) => e.key === 'Enter' && handleRenameSave(session.id)}
-                                        className="flex-1 bg-white border border-primary-300 rounded px-1 py-0.5 text-sm outline-none w-full"
-                                        onClick={(e) => e.stopPropagation()}
-                                    />
+                                    <>
+                                        <label htmlFor="rename_session" className="sr-only">Rename Chat Session</label>
+                                        <input
+                                            id="rename_session"
+                                            name="rename_session"
+                                            autoFocus
+                                            value={editTitle}
+                                            onChange={(e) => setEditTitle(e.target.value)}
+                                            onBlur={() => handleRenameSave(session.id)}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleRenameSave(session.id)}
+                                            className="flex-1 bg-white border border-primary-300 rounded px-1 py-0.5 text-sm outline-none w-full"
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                    </>
                                 ) : (
                                     <span className="truncate">{session.title}</span>
                                 )}
@@ -383,20 +428,37 @@ export default function AskHRDocs() {
                         </div>
                     ))}
                 </div>
-            </div>
+            </aside>
+
+            {/* Mobile Overlay */}
+            {isHistoryVisible && (
+                <div
+                    className="fixed inset-0 bg-black/20 z-30 lg:hidden backdrop-blur-sm transition-opacity animate-in fade-in duration-300"
+                    onClick={() => setIsHistoryVisible(false)}
+                />
+            )}
 
             {/* ── Main Chat Area ─────────────────────────────────────────────────── */}
             <div className="flex-1 flex flex-col bg-white">
                 {/* Header */}
-                <div className="h-14 border-b border-gray-100 flex items-center justify-between px-6 flex-shrink-0">
-                    <h2 className="text-lg font-semibold text-gray-900">
-                        {activeSession ? activeSession.title : 'New Chat'}
-                    </h2>
+                <div className="h-14 border-b border-gray-100 flex items-center justify-between px-4 sm:px-6 flex-shrink-0 bg-white sticky top-0 z-30">
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setIsHistoryVisible(!isHistoryVisible)}
+                            className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg touch-target transition-colors"
+                            title={isHistoryVisible ? "Hide History" : "Show History"}
+                        >
+                            <History size={20} className={isHistoryVisible ? 'text-primary-700' : ''} />
+                        </button>
+                        <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate max-w-[150px] sm:max-w-none">
+                            {activeSession ? activeSession.title : 'New Chat'}
+                        </h2>
+                    </div>
                     <button
                         onClick={() => navigate('/documents')}
-                        className="flex items-center gap-2 text-sm font-medium text-primary-600 bg-primary-50 px-3 py-1.5 rounded-lg hover:bg-primary-100 transition"
+                        className="flex items-center gap-2 text-xs sm:text-sm font-medium text-primary-600 bg-primary-50 px-2 sm:px-3 py-1.5 rounded-lg hover:bg-primary-100 transition whitespace-nowrap"
                     >
-                        <Folder size={16} /> Manage PDFs
+                        <Folder size={14} className="sm:size-4" /> Docs <span className="hidden xs:inline">Manage PDFs</span>
                     </button>
                 </div>
 
@@ -414,14 +476,14 @@ export default function AskHRDocs() {
                         </div>
                     ) : (
                         messages.map((msg, idx) => (
-                            <div key={idx} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                            <div key={idx} className={`flex gap-2 sm:gap-4 ${msg.role === 'user' ? 'justify-end' : ''}`}>
                                 {msg.role === 'assistant' && (
                                     <div className="w-8 h-8 rounded-lg bg-primary-700 text-white flex items-center justify-center flex-shrink-0 mt-1">
                                         <Bot size={16} />
                                     </div>
                                 )}
 
-                                <div className={`max-w-2xl rounded-2xl p-4 ${msg.role === 'user'
+                                <div className={`max-w-[85%] sm:max-w-2xl rounded-2xl p-3 sm:p-4 ${msg.role === 'user'
                                     ? 'bg-primary-600 text-white rounded-br-none'
                                     : 'bg-gray-50 border border-gray-100 rounded-tl-none'
                                     }`}>
@@ -434,12 +496,33 @@ export default function AskHRDocs() {
                                         )}
                                     </div>
 
-                                    {/* Citations */}
-                                    {msg.sources && msg.sources.length > 0 && (
+                                    {/* Source Attribution Badge */}
+                                    {msg.role === 'assistant' && msg.source && (
                                         <div className="mt-4 pt-4 border-t border-gray-200/60">
-                                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Sources</p>
+                                            {msg.source === 'docs' && (
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">
+                                                    <span>📄</span> Answered from: Uploaded Documents
+                                                </div>
+                                            )}
+                                            {msg.source === 'general' && (
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 text-xs font-medium border border-purple-100">
+                                                    <span>🌐</span> Answered from: General AI Knowledge
+                                                </div>
+                                            )}
+                                            {msg.source === 'both' && (
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-medium border border-indigo-100">
+                                                    <span>📄🌐</span> Answered from: Uploaded Documents + General AI Knowledge
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Citations */}
+                                    {msg.sources && msg.sources.length > 0 && msg.sources.some(s => s.type !== 'general' && s.filename !== 'General AI Knowledge') && (
+                                        <div className="mt-3">
+                                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Document Citations</p>
                                             <div className="space-y-1">
-                                                {msg.sources.map((src, i) => (
+                                                {msg.sources.filter(s => s.type !== 'general' && s.filename !== 'General AI Knowledge').map((src, i) => (
                                                     <CitationItem key={i} source={src} onViewerOpen={setViewingSource} />
                                                 ))}
                                             </div>
@@ -467,9 +550,33 @@ export default function AskHRDocs() {
                 </div>
 
                 {/* Input Area */}
-                <div className="p-4 bg-white border-t border-gray-100">
+                <div className="relative p-4 bg-white border-t border-gray-100">
+                    {/* Suggestions Dropdown */}
+                    {showSuggestions && (
+                        <div className="absolute bottom-full left-0 right-0 max-w-4xl mx-auto px-4 mb-2 z-50">
+                            <div className="bg-white rounded-xl shadow-xl shadow-black/5 border border-gray-100 overflow-hidden divide-y divide-gray-50/50">
+                                {filteredSuggestions.map((suggestion, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => {
+                                            setQuestion(suggestion)
+                                            setShowSuggestions(false)
+                                            document.getElementById('chat_question')?.focus()
+                                        }}
+                                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors flex items-center gap-3"
+                                    >
+                                        <Search size={14} className="text-gray-400" />
+                                        {suggestion}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                     <div className="max-w-4xl mx-auto flex items-end gap-2 bg-gray-50 border border-gray-200 rounded-2xl p-2 focus-within:border-primary-500 focus-within:ring-1 focus-within:ring-primary-500 transition-shadow">
+                        <label htmlFor="chat_question" className="sr-only">Ask a question</label>
                         <textarea
+                            id="chat_question"
+                            name="chat_question"
                             value={question}
                             onChange={(e) => setQuestion(e.target.value)}
                             onKeyDown={(e) => {

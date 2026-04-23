@@ -54,13 +54,13 @@ export default function Home() {
     const navigate = useNavigate()
 
     return (
-        <div className="max-w-6xl mx-auto animate-fade-in p-2">
-            <div className="mb-10">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    Welcome back, {user?.full_name?.split(' ')[0] || 'HR'}! 👋
+        <div className="max-w-6xl mx-auto animate-fade-in px-1 py-4 sm:p-2">
+            <div className="mb-8 sm:mb-10 text-left">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                    Welcome back, {user?.full_name ? user.full_name.split(' ')[0] : 'HR'}! 👋
                 </h1>
-                <p className="text-gray-500">
-                    What would you like to achieve today? Select a tool from the dashboard below or use the sidebar to navigate.
+                <p className="text-sm sm:text-base text-gray-500">
+                    What would you like to achieve today?
                 </p>
             </div>
 
@@ -91,14 +91,14 @@ export default function Home() {
                 })}
             </div>
 
-            <div className="mt-12 bg-primary-50 rounded-2xl p-6 sm:px-8 border border-primary-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
+            <div className="mt-12 bg-primary-50 rounded-2xl p-6 sm:p-8 border border-primary-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="text-center md:text-left">
                     <h3 className="text-lg font-bold text-primary-900 mb-1">Keep Knowledge Up to Date</h3>
                     <p className="text-sm text-primary-700">Has the company handbook or insurance policy changed recently? Make sure the AI is using the latest rules.</p>
                 </div>
                 <button
                     onClick={() => navigate('/documents')}
-                    className="btn-primary flex-shrink-0 shadow-sm"
+                    className="btn-primary w-full md:w-auto flex-shrink-0 shadow-sm justify-center"
                 >
                     Manage PDF Documents
                 </button>

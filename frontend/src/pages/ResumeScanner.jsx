@@ -118,21 +118,23 @@ export default function ResumeScanner() {
 
     return (
         <div className="w-[98%] max-w-[1600px] mx-auto flex flex-col gap-6">
-            <div className="mb-2 px-1">
-                <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">Resume Scanner</h1>
-                <p className="text-base text-gray-600 max-w-2xl">
-                    Upload candidate resumes and provide a Job Description. Our AI will analyze, score, and rank the candidates based on real requirements, saving you time from manual screening.
+            <div className="mb-4 sm:mb-6 px-1">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 mb-2">Resume Scanner</h1>
+                <p className="text-sm sm:text-base text-gray-600 max-w-2xl">
+                    Upload candidate resumes and provide a Job Description. Our AI will analyze, score, and rank the candidates based on real requirements.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full">
                 {/* Left Column: Input Form */}
                 <div className="lg:col-span-5 flex flex-col">
-                    <div className="card flex flex-col shadow-sm border border-gray-100 h-full">
-                        <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="card flex flex-col shadow-sm border border-gray-100 h-full p-4 sm:p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
-                                <label className="label">Candidate Name <span className="font-normal text-gray-400">(Optional)</span></label>
+                                <label htmlFor="candidate_name" className="label">Candidate Name <span className="font-normal text-gray-400">(Optional)</span></label>
                                 <input
+                                    id="candidate_name"
+                                    name="candidate_name"
                                     type="text"
                                     className="input"
                                     placeholder="e.g. John Doe"
@@ -141,8 +143,10 @@ export default function ResumeScanner() {
                                 />
                             </div>
                             <div>
-                                <label className="label mb-1">Role <span className="font-normal text-gray-400">(Optional)</span></label>
+                                <label htmlFor="role_select" className="label mb-1">Role <span className="font-normal text-gray-400">(Optional)</span></label>
                                 <select
+                                    id="role_select"
+                                    name="role_select"
                                     className="input cursor-pointer"
                                     value={role}
                                     onChange={(e) => {
@@ -164,11 +168,13 @@ export default function ResumeScanner() {
                         </div>
 
                         <div className="mb-5 flex-1 flex flex-col">
-                            <label className="label flex justify-between">
+                            <label htmlFor="jd_text" className="label flex justify-between">
                                 Job Description
                                 <span className="font-normal text-xs text-primary-600 bg-primary-50 px-2 rounded flex items-center h-5">Required</span>
                             </label>
                             <textarea
+                                id="jd_text"
+                                name="jd_text"
                                 className="input min-h-[300px] resize-y flex-1 bg-gray-50/30 focus:bg-white border-dashed focus:border-solid hover:border-gray-400 transition-colors"
                                 placeholder="Paste the detailed Job Description here. The deeper the context, the more accurate the AI ranking will be..."
                                 value={jdText}
@@ -177,7 +183,10 @@ export default function ResumeScanner() {
                         </div>
 
                         <div className="flex items-center gap-3 flex-wrap">
+                            <label htmlFor="resume_files" className="sr-only">Upload Resumes</label>
                             <input
+                                id="resume_files"
+                                name="resume_files"
                                 ref={fileRef}
                                 type="file"
                                 multiple
@@ -225,9 +234,9 @@ export default function ResumeScanner() {
                             </div>
 
                             {/* Summary banner */}
-                            <div className="bg-primary-50/50 rounded-lg p-3.5 mb-5 flex items-center gap-4 text-sm border border-primary-100/50 shadow-sm">
+                            <div className="bg-primary-50/50 rounded-lg p-3.5 mb-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm border border-primary-100/50 shadow-sm">
                                 <div className="flex flex-col"><span className="text-gray-500 text-xs uppercase tracking-wider font-semibold mb-0.5">Scanned</span><span className="text-gray-900 font-bold text-base">{results.length} Resumes</span></div>
-                                <div className="h-8 w-px bg-primary-200"></div>
+                                <div className="hidden sm:block h-8 w-px bg-primary-200"></div>
                                 <div className="flex flex-col"><span className="text-gray-500 text-xs uppercase tracking-wider font-semibold mb-0.5">Top Match</span><span className="font-bold text-primary-700 text-base">{results[0]?.filename || 'N/A'}</span></div>
                             </div>
 
@@ -235,7 +244,7 @@ export default function ResumeScanner() {
                                 <table className="w-full">
                                     <thead className="border-b border-gray-100">
                                         <tr>
-                                            {['Rank', 'Resume', 'Score', 'Recommended Level', 'Strengths', 'Gaps'].map((h) => (
+                                            {['Rank', 'Resume', 'Score', 'Recommended Level', 'AI Detection', 'Strengths', 'Gaps'].map((h) => (
                                                 <th key={h} className="table-header">{h}</th>
                                             ))}
                                         </tr>
@@ -261,6 +270,17 @@ export default function ResumeScanner() {
                                                     <span className={`badge ${LEVEL_COLORS[r.recommended_level] || 'bg-gray-100 text-gray-600'}`}>
                                                         {r.recommended_level}
                                                     </span>
+                                                </td>
+                                                <td className="table-cell">
+                                                    {r.ai_detection ? (
+                                                        <div className="flex flex-col gap-1">
+                                                            <span className={`text-[11px] font-bold px-2 py-0.5 rounded w-max ${r.ai_detection.score >= 60 ? 'bg-red-100 text-red-700' : r.ai_detection.score >= 30 ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>
+                                                                {r.ai_detection.score}% - {r.ai_detection.label}
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-xs text-gray-400 font-medium">N/A</span>
+                                                    )}
                                                 </td>
                                                 <td className="table-cell max-w-[180px]">
                                                     <ul className="space-y-1">
@@ -298,20 +318,20 @@ export default function ResumeScanner() {
                                 Fill out the job details on the left, paste the JD, and upload applicant CVs. Our smart engine will evaluate and rank them instantly.
                             </p>
 
-                            <div className="grid grid-cols-2 gap-5 w-full max-w-lg mx-auto">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full max-w-lg mx-auto">
                                 <div className="bg-white p-5 rounded-2xl border border-gray-200 text-left shadow-sm hover:border-primary-300 hover:shadow-md transition-all duration-300">
                                     <div className="flex items-center gap-2.5 text-[15px] font-semibold text-gray-900 mb-2">
                                         <div className="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center"><CheckCircle2 size={18} /></div>
                                         Smart Ranking
                                     </div>
-                                    <p className="text-[13px] text-gray-500 leading-snug">Automatically sorts candidates by formatting, skills, and experience match.</p>
+                                    <p className="text-[13px] text-gray-500 leading-snug">Automatically sorts candidates by skills and match.</p>
                                 </div>
                                 <div className="bg-white p-5 rounded-2xl border border-gray-200 text-left shadow-sm hover:border-primary-300 hover:shadow-md transition-all duration-300">
                                     <div className="flex items-center gap-2.5 text-[15px] font-semibold text-gray-900 mb-2">
                                         <div className="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center"><AlertCircle size={18} /></div>
                                         Gap Analysis
                                     </div>
-                                    <p className="text-[13px] text-gray-500 leading-snug">Highlights missing skills or potential red flags to streamline your process.</p>
+                                    <p className="text-[13px] text-gray-500 leading-snug">Highlights missing skills to streamline your process.</p>
                                 </div>
                             </div>
                         </div>
@@ -328,14 +348,14 @@ export default function ResumeScanner() {
                     </div>
 
                     <div className="overflow-x-auto rounded-lg border border-gray-100">
-                        <table className="w-full table-fixed">
+                        <table className="w-full">
                             <thead className="border-b border-gray-100 bg-gray-50/50">
                                 <tr>
-                                    <th className="table-header w-[25%]">Candidate</th>
-                                    <th className="table-header w-[25%]">Role</th>
-                                    <th className="table-header w-[120px]">Score</th>
-                                    <th className="table-header w-[160px]">Date Scanned</th>
-                                    <th className="table-header w-[90px]"></th>
+                                    <th className="table-header w-1/3 sm:w-[25%]">Candidate</th>
+                                    <th className="table-header hidden sm:table-cell sm:w-[25%]">Role</th>
+                                    <th className="table-header w-1/4 sm:w-[120px]">Score</th>
+                                    <th className="table-header w-1/4 sm:w-[160px]">Date</th>
+                                    <th className="table-header w-[80px] sm:w-[90px]"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -349,6 +369,8 @@ export default function ResumeScanner() {
                                             <td className="table-cell">
                                                 {editingId === h.id ? (
                                                     <input
+                                                        id="edit_candidate_name"
+                                                        name="edit_candidate_name"
                                                         autoFocus
                                                         onClick={e => e.stopPropagation()}
                                                         value={editForm.candidate_name}
@@ -362,10 +384,12 @@ export default function ResumeScanner() {
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="table-cell">
+                                            <td className="table-cell hidden sm:table-cell">
                                                 {editingId === h.id ? (
                                                     <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                                                         <input
+                                                            id="edit_role"
+                                                            name="edit_role"
                                                             value={editForm.role}
                                                             onChange={e => setEditForm(prev => ({ ...prev, role: e.target.value }))}
                                                             className="text-sm border border-gray-300 rounded px-2 py-0.5 outline-none w-full"
@@ -383,7 +407,7 @@ export default function ResumeScanner() {
                                                     {h.top_score}
                                                 </span>
                                             </td>
-                                            <td className="table-cell text-gray-500">
+                                            <td className="table-cell text-gray-500 whitespace-nowrap text-xs">
                                                 {new Date(h.created_at).toLocaleDateString()}
                                             </td>
                                             <td className="table-cell text-right">

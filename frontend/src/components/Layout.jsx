@@ -19,10 +19,15 @@ const navItems = [
 export default function Layout() {
     const { user, logout } = useAuth()
     const navigate = useNavigate()
-    const initials = user?.full_name ? user.full_name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2) : 'HR'
-    const firstName = user?.full_name ? user.full_name.split(' ')[0] : 'User'
+    const initials = user?.full_name 
+        ? user.full_name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2) 
+        : 'HR'
+    const firstName = user?.full_name 
+        ? user.full_name.split(' ')[0] 
+        : (user?.email?.split('@')[0] || 'User')
 
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(false)
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [showTopMenu, setShowTopMenu] = useState(false)
     const [showBottomMenu, setShowBottomMenu] = useState(false)
 
@@ -72,29 +77,39 @@ export default function Layout() {
 
     return (
         <div className="flex h-screen overflow-hidden bg-[#f4f6f8]">
+            {/* Mobile Overlay */}
+            {isMobileMenuOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/40 z-[45] lg:hidden backdrop-blur-sm animate-in fade-in duration-300"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                />
+            )}
+
             {/* ── Sidebar ──────────────────────────────────────────────── */}
             <aside
-                className={`flex-shrink-0 bg-white border-r border-gray-100 flex flex-col transition-all duration-300 z-40 ease-in-out ${isSidebarExpanded ? 'w-60' : 'w-16'}`}
-                onMouseEnter={() => setIsSidebarExpanded(true)}
+                className={`flex-shrink-0 bg-white border-r border-gray-100 flex flex-col transition-all duration-300 z-50 ease-in-out 
+                    fixed inset-y-0 left-0 transform lg:static lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} 
+                    ${isSidebarExpanded ? 'w-64' : 'w-16 lg:w-16'} ${isMobileMenuOpen ? 'w-64' : ''}`}
+                onMouseEnter={() => !isMobileMenuOpen && setIsSidebarExpanded(true)}
                 onMouseLeave={() => {
-                    setIsSidebarExpanded(false)
-                    setShowBottomMenu(false)
+                    if (!isMobileMenuOpen) {
+                        setIsSidebarExpanded(false)
+                        setShowBottomMenu(false)
+                    }
                 }}
             >
-                {/* Logo */}
+                {/* Logo & Mobile Close */}
                 <div
-                    className={`py-5 border-b border-gray-100 flex items-center cursor-pointer hover:opacity-80 transition-opacity ${isSidebarExpanded ? 'px-5' : 'px-0 justify-center'}`}
-                    onClick={() => navigate('/')}
-                    title="Go to Dashboard"
+                    className={`py-5 border-b border-gray-100 flex items-center justify-between transition-opacity ${isSidebarExpanded || isMobileMenuOpen ? 'px-5' : 'px-0 justify-center'}`}
                 >
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-center justify-center gap-1 cursor-pointer" onClick={() => { navigate('/'); setIsMobileMenuOpen(false); }}>
                         <img 
-                            src={isSidebarExpanded ? "/logo.png" : "/favicon.png"} 
+                            src={(isSidebarExpanded || isMobileMenuOpen) ? "/logo.png" : "/favicon.png"} 
                             alt="Logo" 
-                            className={`w-auto object-contain flex-shrink-0 transition-all duration-300 ${isSidebarExpanded ? 'h-10' : 'h-8'}`} 
+                            className={`w-auto object-contain flex-shrink-0 transition-all duration-300 ${isSidebarExpanded || isMobileMenuOpen ? 'h-10' : 'h-8'}`} 
                         />
-                        {isSidebarExpanded && (
-                            <span className="text-sm font-medium text-gray-500 whitespace-nowrap animate-fade-in">HR</span>
+                        {(isSidebarExpanded || isMobileMenuOpen) && (
+                            <span className="text-[11px] font-bold text-gray-500 whitespace-nowrap animate-fade-in tracking-wider">Human Resources</span>
                         )}
                     </div>
                 </div>
@@ -105,14 +120,15 @@ export default function Layout() {
                         <NavLink
                             key={to}
                             to={to}
+                            onClick={() => setIsMobileMenuOpen(false)}
                             className={({ isActive }) =>
                                 `flex items-center rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 font-medium text-sm transition-colors duration-100 cursor-pointer ${isActive ? 'bg-primary-50 text-primary-700 hover:bg-primary-50 hover:text-primary-700' : ''
-                                } ${isSidebarExpanded ? 'px-3 py-2.5 gap-3' : 'justify-center py-3'}`
+                                } ${(isSidebarExpanded || isMobileMenuOpen) ? 'px-3 py-2.5 gap-3' : 'justify-center py-3'}`
                             }
-                            title={!isSidebarExpanded ? label : undefined}
+                            title={!(isSidebarExpanded || isMobileMenuOpen) ? label : undefined}
                         >
-                            <Icon size={isSidebarExpanded ? 17 : 20} className="flex-shrink-0" />
-                            {isSidebarExpanded && (
+                            <Icon size={(isSidebarExpanded || isMobileMenuOpen) ? 17 : 20} className="flex-shrink-0" />
+                            {(isSidebarExpanded || isMobileMenuOpen) && (
                                 <>
                                     <span className="flex-1 whitespace-nowrap animate-fade-in">{label}</span>
                                     {badge && (
@@ -125,16 +141,16 @@ export default function Layout() {
                 </nav>
 
                 {/* User - Bottom Left */}
-                <div className={`px-4 py-4 border-t border-gray-100 relative ${isSidebarExpanded ? '' : 'flex justify-center px-0'}`}>
+                <div className={`px-4 py-4 border-t border-gray-100 relative ${(isSidebarExpanded || isMobileMenuOpen) ? '' : 'flex justify-center px-0'}`}>
                     <button
-                        onClick={() => isSidebarExpanded && setShowBottomMenu(!showBottomMenu)}
-                        className={`flex items-center gap-3 w-full text-left rounded-lg transition-colors ${isSidebarExpanded ? 'hover:bg-gray-50 p-2 -mx-2' : ''}`}
-                        title={!isSidebarExpanded ? "Expand to see profile" : undefined}
+                        onClick={() => (isSidebarExpanded || isMobileMenuOpen) && setShowBottomMenu(!showBottomMenu)}
+                        className={`flex items-center gap-3 w-full text-left rounded-lg transition-colors ${(isSidebarExpanded || isMobileMenuOpen) ? 'hover:bg-gray-50 p-2 -mx-2' : ''}`}
+                        title={!(isSidebarExpanded || isMobileMenuOpen) ? "Expand to see profile" : undefined}
                     >
                         <div className="w-9 h-9 rounded-full bg-primary-700 text-white flex items-center justify-center font-semibold text-sm flex-shrink-0">
                             {initials}
                         </div>
-                        {isSidebarExpanded && (
+                        {(isSidebarExpanded || isMobileMenuOpen) && (
                             <div className="min-w-0 flex-1 flex items-center justify-between">
                                 <div className="min-w-0">
                                     <p className="text-sm font-semibold text-gray-900 truncate">{user?.full_name}</p>
@@ -145,10 +161,10 @@ export default function Layout() {
                         )}
                     </button>
 
-                    {showBottomMenu && isSidebarExpanded && (
+                    {showBottomMenu && (isSidebarExpanded || isMobileMenuOpen) && (
                         <ProfileMenu
                             onLogout={logout}
-                            onSettings={() => { setShowBottomMenu(false); navigate('/settings'); }}
+                            onSettings={() => { setShowBottomMenu(false); navigate('/settings'); setIsMobileMenuOpen(false); }}
                         />
                     )}
                 </div>
@@ -157,14 +173,31 @@ export default function Layout() {
             {/* ── Main area ────────────────────────────────────────────── */}
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
                 {/* Top bar */}
-                <header className="bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-4 flex-shrink-0 relative z-20">
-                    <div className="flex-1 relative max-w-xl">
+                <header className="bg-white border-b border-gray-100 px-4 sm:px-6 h-[var(--header-height)] flex items-center gap-4 flex-shrink-0 relative z-20">
+                    <button 
+                        onClick={() => setIsMobileMenuOpen(true)}
+                        className="lg:hidden p-1.5 -ml-1 text-gray-500 hover:bg-gray-100 rounded-lg touch-target"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+
+                    <div className="flex-1 relative max-w-xl hidden lg:block">
                         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <label htmlFor="global_search" className="sr-only">Search</label>
                         <input
+                            id="global_search"
+                            name="global_search"
                             type="text"
                             placeholder="Search..."
                             className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         />
+                    </div>
+
+                    <div className="flex lg:hidden items-center gap-2">
+                        <img src="/favicon.png" alt="Logo" className="w-6 h-6 object-contain" />
+                        <span className="text-sm font-bold text-gray-900">HR Assist</span>
                     </div>
                     <div className="ml-auto relative z-50">
                         <button
@@ -190,7 +223,7 @@ export default function Layout() {
                 </header>
 
                 {/* Page content */}
-                <main className="flex-1 overflow-y-auto p-6">
+                <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
                     <Outlet />
                 </main>
             </div>

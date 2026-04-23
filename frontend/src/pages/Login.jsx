@@ -80,15 +80,15 @@ export default function Login() {
             <div className="w-full max-w-md">
                 {/* Logo */}
                 <div className="flex justify-center mb-8">
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-center justify-center gap-1">
                         <img src="/logo.png" alt="Logo" className="h-16 w-auto object-contain flex-shrink-0" />
-                        <span className="text-xl font-medium text-gray-500">HR</span>
+                        <span className="text-sm font-bold text-gray-500 tracking-wider">Human Resources</span>
                     </div>
                 </div>
 
                 {/* Card */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                    <h1 className="text-xl font-semibold text-gray-900 mb-1">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+                    <h1 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">
                         {mode === 'login' ? 'Welcome back' : 'Create your account'}
                     </h1>
                     <p className="text-sm text-gray-500 mb-6">
@@ -102,15 +102,15 @@ export default function Login() {
                         onClick={handleMSClick}
                         disabled={loading}
                         type="button" 
-                        className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition shadow-sm text-gray-700 font-medium disabled:opacity-50"
+                        className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition shadow-sm text-gray-700 font-medium disabled:opacity-50 min-h-[44px]"
                     >
-                        <svg className="w-5 h-5" viewBox="0 0 21 21">
+                        <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 21 21">
                             <path fill="#f25022" d="M1 1h9v9H1z" />
                             <path fill="#7fba00" d="M11 1h9v9h-9z" />
                             <path fill="#00a4ef" d="M1 11h9v9H1z" />
                             <path fill="#ffb900" d="M11 11h9v9h-9z" />
                         </svg>
-                        Continue with Microsoft
+                        <span className="text-sm sm:text-base">Continue with Microsoft</span>
                     </button>
 
                     <div className="flex items-center my-6">
@@ -122,7 +122,7 @@ export default function Login() {
                     <form onSubmit={handleEmailSubmit} className="space-y-4">
                         {mode === 'register' && (
                             <div>
-                                <label className="label">Full Name</label>
+                                <label htmlFor="full_name" className="label">Full Name</label>
                                 <input
                                     type="text"
                                     name="full_name"
@@ -137,7 +137,7 @@ export default function Login() {
                         )}
 
                         <div>
-                            <label className="label">Email address</label>
+                            <label htmlFor="email" className="label">Email address</label>
                             <input
                                 type="email"
                                 name="email"
@@ -151,7 +151,7 @@ export default function Login() {
                         </div>
 
                         <div>
-                            <label className="label">Password</label>
+                            <label htmlFor="password" className="label">Password</label>
                             <div className="relative">
                                 <input
                                     type={showPw ? 'text' : 'password'}

@@ -90,7 +90,6 @@ export default function JDBuilder() {
     const [result, setResult] = useState(null)
     const [loading, setLoading] = useState(false)
     const [exporting, setExporting] = useState(false)
-    const [isEditing, setIsEditing] = useState(false)
 
     // History
     const [history, setHistory] = useState([])
@@ -227,69 +226,69 @@ export default function JDBuilder() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* ── Left: Input form ── */}
                     <div className="card">
                         <h2 className="font-semibold text-gray-900 mb-4">Input</h2>
                         <form onSubmit={handleGenerate} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="label">Job Title *</label>
-                                    <input type="text" className="input" placeholder="Project Manager" value={form.job_title} onChange={update('job_title')} required />
+                                    <label htmlFor="job_title" className="label">Job Title *</label>
+                                    <input id="job_title" name="job_title" type="text" className="input" placeholder="Project Manager" value={form.job_title} onChange={update('job_title')} required />
                                 </div>
                                 <div>
-                                    <label className="label">Location</label>
-                                    <select className="input" value={form.location} onChange={update('location')}>
+                                    <label htmlFor="location" className="label">Location</label>
+                                    <select id="location" name="location" className="input" value={form.location} onChange={update('location')}>
                                         {LOCATIONS.map((l) => <option key={l}>{l}</option>)}
                                     </select>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="label">Department</label>
-                                <select className="input" value={form.department} onChange={update('department')}>
+                                <label htmlFor="department" className="label">Department</label>
+                                <select id="department" name="department" className="input" value={form.department} onChange={update('department')}>
                                     <option value="">Select department…</option>
                                     {DEPARTMENTS.map((d) => <option key={d}>{d}</option>)}
                                 </select>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="label">Employment Type</label>
-                                    <select className="input" value={form.employment_type} onChange={update('employment_type')}>
+                                    <label htmlFor="employment_type" className="label">Employment Type</label>
+                                    <select id="employment_type" name="employment_type" className="input" value={form.employment_type} onChange={update('employment_type')}>
                                         {EMPLOYMENT_TYPES.map((t) => <option key={t}>{t}</option>)}
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="label">Salary Range</label>
+                                    <label htmlFor="salary_min" className="label">Salary Range</label>
                                     <div className="flex items-center gap-2">
-                                        <input type="text" className="input" placeholder="$ Min" value={form.salary_min} onChange={update('salary_min')} />
+                                        <input id="salary_min" name="salary_min" type="text" className="input" placeholder="$ Min" value={form.salary_min} onChange={update('salary_min')} />
                                         <span className="text-gray-400 text-sm">–</span>
-                                        <input type="text" className="input" placeholder="$ Max" value={form.salary_max} onChange={update('salary_max')} />
+                                        <input id="salary_max" name="salary_max" type="text" className="input" placeholder="$ Max" value={form.salary_max} onChange={update('salary_max')} />
                                     </div>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="label">Reports To</label>
-                                <input type="text" className="input" placeholder="e.g. John Smith" value={form.reports_to} onChange={update('reports_to')} />
+                                <label htmlFor="reports_to" className="label">Reports To</label>
+                                <input id="reports_to" name="reports_to" type="text" className="input" placeholder="e.g. John Smith" value={form.reports_to} onChange={update('reports_to')} />
                             </div>
 
                             <div>
-                                <label className="label">Notes from HR <span className="text-gray-400 font-normal">(optional)</span></label>
-                                <textarea className="input min-h-[90px] resize-y" placeholder="Key responsibilities, must-haves, company culture notes…" value={form.notes} onChange={update('notes')} />
+                                <label htmlFor="notes" className="label">Notes from HR <span className="text-gray-400 font-normal">(optional)</span></label>
+                                <textarea id="notes" name="notes" className="input min-h-[90px] resize-y" placeholder="Key responsibilities, must-haves, company culture notes…" value={form.notes} onChange={update('notes')} />
                             </div>
 
                             <div>
                                 <div className="flex items-center justify-between mb-1">
-                                    <label className="label mb-0">Current JD <span className="text-gray-400 font-normal">(optional)</span></label>
-                                    <label className="cursor-pointer text-xs flex items-center gap-1 text-primary-600 hover:text-primary-700">
+                                    <label htmlFor="current_jd" className="label mb-0">Current JD <span className="text-gray-400 font-normal">(optional)</span></label>
+                                    <label htmlFor="jd_file_upload" className="cursor-pointer text-xs flex items-center gap-1 text-primary-600 hover:text-primary-700">
                                         <Upload size={13} />
                                         Upload File
-                                        <input type="file" className="hidden" accept=".pdf,.docx,.doc" onChange={handleFileUpload} />
+                                        <input id="jd_file_upload" name="jd_file_upload" type="file" className="hidden" accept=".pdf,.docx,.doc" onChange={handleFileUpload} />
                                     </label>
                                 </div>
-                                <textarea className="input min-h-[90px] resize-y" placeholder="Paste an existing JD here to enhance it..." value={form.current_jd} onChange={update('current_jd')} />
+                                <textarea id="current_jd" name="current_jd" className="input min-h-[90px] resize-y" placeholder="Paste an existing JD here to enhance it..." value={form.current_jd} onChange={update('current_jd')} />
                             </div>
 
                             <button type="submit" disabled={loading} className="btn-primary w-full justify-center">
@@ -300,65 +299,35 @@ export default function JDBuilder() {
                     </div>
 
                     {/* ── Right: Preview ── */}
-                    <div className="card flex flex-col min-h-[700px] bg-gray-50/50">
+                    <div className="card flex flex-col min-h-[400px]">
                         {result ? (
                             <>
-                                <div className="flex justify-between items-center mb-4">
-                                    <h3 className="font-semibold text-gray-900">
-                                        Preview — {result.title || result.job_title}
-                                    </h3>
-                                    <button 
-                                        onClick={() => setIsEditing(!isEditing)} 
-                                        className={`text-xs px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors ${
-                                            isEditing 
-                                            ? 'bg-primary-100 text-primary-700 font-medium' 
-                                            : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 shadow-sm'
-                                        }`}
-                                    >
-                                        <Edit2 size={12} />
-                                        {isEditing ? 'Editing Body Text' : 'Edit Text'}
-                                    </button>
-                                </div>
-
-                                <div className="flex-1 overflow-y-auto mb-4 border border-gray-200 rounded-lg p-8 sm:p-12 bg-white shadow-sm flex flex-col relative text-[13px] font-['Calibri',_sans-serif]">
-                                    {/* Document Header matching docx */}
-                                    <div className="flex flex-col items-center mb-8 select-none">
-                                        <img src="/logo.png" alt="Company Logo" className="w-[3in] max-w-full mb-6" />
-                                        <h1 className="text-[18pt] font-bold text-center" style={{ fontFamily: 'Arial, sans-serif', color: '#2E7D32', marginBottom: '8px' }}>
-                                            {result.title || result.job_title}
-                                        </h1>
-                                        <div className="text-gray-600 text-[14px]">
-                                            {[form.department, form.location, form.employment_type].filter(Boolean).join(' | ')}
+                                {/* Job card preview */}
+                                <div className="border border-gray-100 rounded-xl p-4 mb-4 bg-gray-50">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="w-8 h-8 bg-primary-700 rounded-lg flex items-center justify-center flex-shrink-0">
+                                            <Building2 size={14} className="text-white" />
+                                        </div>
+                                        <div>
+                                            <div className="font-semibold text-gray-900 text-sm">{result.title || result.job_title}</div>
                                         </div>
                                     </div>
-
-                                    {isEditing ? (
-                                        <textarea
-                                            autoFocus
-                                            className="w-full flex-1 resize-none outline-none bg-transparent"
-                                            style={{ 
-                                                fontFamily: 'Calibri, sans-serif', 
-                                                fontSize: '13.5px',
-                                                lineHeight: '1.7',
-                                                minHeight: '400px'
-                                            }}
-                                            value={result.content}
-                                            onChange={(e) => setResult({ ...result, content: e.target.value })}
-                                        />
-                                    ) : (
-                                        <div 
-                                            className="flex-1 cursor-text hover:bg-gray-50/50 transition-colors rounded -mx-2 px-2 pb-4" 
-                                            onClick={() => setIsEditing(true)}
-                                            title="Click to edit text"
-                                        >
-                                            <PlainTextRenderer content={result.content} />
-                                        </div>
-                                    )}
+                                    <div className="space-y-1 text-xs text-gray-500">
+                                        {form.location && <div className="flex items-center gap-1"><MapPin size={11} /> {form.location}</div>}
+                                        {form.department && <div className="flex items-center gap-1"><Briefcase size={11} /> {form.department}</div>}
+                                        {form.employment_type && <div className="flex items-center gap-1"><User size={11} /> {form.employment_type}</div>}
+                                    </div>
                                 </div>
 
-                                <div className="flex gap-2">
+                                {/* Content */}
+                                <div className="flex-1 overflow-y-auto min-h-0 border border-gray-100 rounded-lg p-4 bg-white shadow-sm">
+                                    <PlainTextRenderer content={result.content} />
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex flex-col sm:flex-row gap-2 mt-4">
                                     <button onClick={() => { navigator.clipboard.writeText(result.content); toast.success('Copied!') }} className="btn-secondary flex-1 justify-center">
-                                        <Copy size={14} /> Copy Text
+                                        <Copy size={14} /> Copy
                                     </button>
                                     <button onClick={handleExport} disabled={exporting} className="btn-primary flex-1 justify-center">
                                         {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
@@ -367,7 +336,7 @@ export default function JDBuilder() {
                                 </div>
                             </>
                         ) : (
-                            <div className="flex-1 flex flex-col items-center justify-center text-gray-400 text-sm h-full">
+                            <div className="flex-1 flex flex-col items-center justify-center text-gray-400 text-sm">
                                 <FileText size={40} className="opacity-20 mb-3" />
                                 <p>Fill in the form and click <strong>Generate JD</strong></p>
                                 <p className="text-xs mt-1">The job description will appear here as a live preview.</p>
@@ -386,13 +355,13 @@ export default function JDBuilder() {
                     </div>
 
                     <div className="overflow-x-auto rounded-lg border border-gray-100">
-                        <table className="w-full table-fixed">
+                        <table className="w-full">
                             <thead className="border-b border-gray-100 bg-gray-50/50">
                                 <tr>
-                                    <th className="table-header w-[40%]">Job Title</th>
-                                    <th className="table-header w-[30%]">Department</th>
-                                    <th className="table-header w-[160px]">Date Generated</th>
-                                    <th className="table-header w-[100px]"></th>
+                                    <th className="table-header w-1/2 sm:w-[40%]">Job Title</th>
+                                    <th className="table-header hidden sm:table-cell sm:w-[30%]">Department</th>
+                                    <th className="table-header w-1/4 sm:w-[160px]">Date</th>
+                                    <th className="table-header w-[80px] sm:w-[100px]"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -406,7 +375,10 @@ export default function JDBuilder() {
                                             <td className="table-cell">
                                                 {editingId === h.id ? (
                                                     <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                                                        <label htmlFor="edit_title" className="sr-only">Edit JD Title</label>
                                                         <input
+                                                            id="edit_title"
+                                                            name="edit_title"
                                                             autoFocus
                                                             value={editTitle}
                                                             onChange={e => setEditTitle(e.target.value)}
@@ -419,10 +391,10 @@ export default function JDBuilder() {
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="table-cell text-primary-600 truncate pr-2" title={h.department || '—'}>
+                                            <td className="table-cell hidden sm:table-cell text-primary-600 truncate pr-2" title={h.department || '—'}>
                                                 {h.department || '—'}
                                             </td>
-                                            <td className="table-cell text-gray-500">
+                                            <td className="table-cell text-gray-500 whitespace-nowrap text-xs">
                                                 {new Date(h.created_at).toLocaleDateString()}
                                             </td>
                                             <td className="table-cell text-right">

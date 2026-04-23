@@ -54,9 +54,9 @@ export default function Settings() {
 
     return (
         <div className="max-w-6xl mx-auto w-full">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">Settings</h1>
-                <p className="text-base text-gray-600">Manage your account preferences, security settings, and notifications.</p>
+            <div className="mb-8 px-1">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 mb-2">Settings</h1>
+                <p className="text-sm sm:text-base text-gray-600">Manage your account preferences, security settings, and notifications.</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -76,8 +76,10 @@ export default function Settings() {
 
                         <form onSubmit={handleProfileSave} className="space-y-5">
                             <div>
-                                <label className="label">Full Name</label>
+                                <label htmlFor="full_name" className="label">Full Name</label>
                                 <input
+                                    id="full_name"
+                                    name="full_name"
                                     type="text"
                                     required
                                     className="input bg-gray-50/50 focus:bg-white"
@@ -86,12 +88,12 @@ export default function Settings() {
                                 />
                             </div>
                             <div>
-                                <label className="label">Email Address</label>
+                                <label htmlFor="email" className="label">Email Address</label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <Mail size={16} className="text-gray-400" />
                                     </div>
-                                    <input type="email" disabled value={user?.email || ''} className="input pl-10 bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200" />
+                                    <input id="email" name="email" type="email" disabled value={user?.email || ''} className="input pl-10 bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200" />
                                 </div>
                                 <p className="text-[11px] text-gray-400 mt-1.5 flex items-center gap-1"><Shield size={12} /> Primary email cannot be changed directly.</p>
                             </div>
@@ -103,7 +105,7 @@ export default function Settings() {
                                 </div>
                             </div>
                             <div className="pt-2">
-                                <button type="submit" disabled={savingProfile} className="btn-primary w-full sm:w-auto">
+                                <button type="submit" disabled={savingProfile} className="btn-primary w-full justify-center shadow-sm">
                                     {savingProfile ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                                     Save Profile Changes
                                 </button>
@@ -130,8 +132,10 @@ export default function Settings() {
 
                         <form onSubmit={handlePasswordChange} className="space-y-5">
                             <div>
-                                <label className="label">Current Password</label>
+                                <label htmlFor="current_password" className="label">Current Password</label>
                                 <input
+                                    id="current_password"
+                                    name="current_password"
                                     type="password"
                                     required
                                     className="input bg-gray-50/50 focus:bg-white"
@@ -142,8 +146,10 @@ export default function Settings() {
                             </div>
                             <div className="h-px w-full bg-gray-100 my-2"></div>
                             <div>
-                                <label className="label">New Password</label>
+                                <label htmlFor="new_password" className="label">New Password</label>
                                 <input
+                                    id="new_password"
+                                    name="new_password"
                                     type="password"
                                     required
                                     minLength={6}
@@ -154,8 +160,10 @@ export default function Settings() {
                                 />
                             </div>
                             <div>
-                                <label className="label">Confirm New Password</label>
+                                <label htmlFor="confirm_password" className="label">Confirm New Password</label>
                                 <input
+                                    id="confirm_password"
+                                    name="confirm_password"
                                     type="password"
                                     required
                                     className="input bg-gray-50/50 focus:bg-white"
@@ -165,7 +173,7 @@ export default function Settings() {
                                 />
                             </div>
                             <div className="pt-2">
-                                <button type="submit" disabled={savingPw} className="btn-primary w-full sm:w-auto">
+                                <button type="submit" disabled={savingPw} className="btn-primary w-full justify-center shadow-sm">
                                     {savingPw ? <Loader2 size={16} className="animate-spin" /> : <Lock size={16} />}
                                     Update Password
                                 </button>

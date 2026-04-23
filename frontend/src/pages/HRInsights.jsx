@@ -64,12 +64,12 @@ export default function HRInsights() {
 
     return (
         <div className="w-full">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 px-1">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">HR Insights</h1>
                     <p className="text-sm text-gray-500 mt-1">Overview of your activity and generated documents.</p>
                 </div>
-                <button onClick={() => fetchAll()} className="btn-secondary text-xs">
+                <button onClick={() => fetchAll()} className="btn-secondary text-xs w-full sm:w-auto justify-center">
                     <RefreshCw size={13} className={loading ? "animate-spin" : ""} /> Refresh
                 </button>
             </div>
